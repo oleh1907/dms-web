@@ -1,5 +1,5 @@
 {
-  "name": "dmv-web-ui",
+  "name": "dmv-web",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
