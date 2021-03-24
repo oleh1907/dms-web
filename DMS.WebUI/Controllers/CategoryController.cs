@@ -30,8 +30,7 @@ namespace DMS.Controllers
          */
         public IActionResult Index()
         {
-            var email = HttpContext.Session.GetString("UserEmail");
-            var categories = _categoryService.GetAll(email);
+            var categories = _categoryService.GetAll();
             return View(categories);
         }
 
@@ -51,7 +50,7 @@ namespace DMS.Controllers
         public IActionResult Create(Category category)
         {
             var email = HttpContext.Session.GetString("UserEmail");
-            var status = _categoryService.CreateCategory(category,email);
+            var status = _categoryService.CreateCategory(category);
             if (status)
             {
                 ViewBag.success = "Created successfully";

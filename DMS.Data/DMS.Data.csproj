@@ -414,10 +414,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Category.cs" />
+    <Compile Include="Migrations\20210324184524_NamingChanges.cs" />
+    <Compile Include="Migrations\20210324184524_NamingChanges.designer.cs">
+      <DependentUpon>20210324184524_NamingChanges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20210324190925_CategoryUserConnectionDropped.cs" />
+    <Compile Include="Migrations\20210324190925_CategoryUserConnectionDropped.designer.cs">
+      <DependentUpon>20210324190925_CategoryUserConnectionDropped.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\20210324195854_refresh.cs" />
+    <Compile Include="Migrations\20210324195854_refresh.designer.cs">
+      <DependentUpon>20210324195854_refresh.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Category.cs" />
     <Compile Include="DMSContext.cs" />
-    <Compile Include="Document.cs" />
-    <Compile Include="DocumentViewModel.cs" />
+    <Compile Include="Models\Document.cs" />
+    <Compile Include="ViewModels\DateReport.cs" />
+    <Compile Include="ViewModels\DocumentViewModel.cs" />
     <Compile Include="IFormFileExtentions.cs" />
     <Compile Include="Migrations\20180721104133_update_00.cs" />
     <Compile Include="Migrations\20180721104133_update_00.designer.cs">
@@ -425,8 +438,9 @@
     </Compile>
     <Compile Include="Migrations\DMSContextModelSnapshot.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="User.cs" />
-    <Compile Include="UserLogin.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="ViewModels\UserLogin.cs" />
+    <Compile Include="ViewModels\UserReport.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

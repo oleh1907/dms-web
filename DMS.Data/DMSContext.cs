@@ -17,8 +17,5 @@ namespace DMS.Data
         {
 
         }
-      
-
-
     }
 }

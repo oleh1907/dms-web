@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using System.Security.Principal;
 using Microsoft.AspNetCore.Http;
+using DMS.Data.ViewModels;
+using Microsoft.AspNetCore.Hosting;
 
 namespace DMS.Controllers
 {
@@ -20,12 +22,27 @@ namespace DMS.Controllers
     [Authorize]
     public class HomeController : Controller
     {
+        private CategoryService _categoryService;
+        private readonly ReportsService _reportsService;
+
+        public HomeController(DMSContext context, IHostingEnvironment hostingEnvironment)
+        {
+            _categoryService = new CategoryService(context);
+            _reportsService = new ReportsService(context, hostingEnvironment);
+        }
+
         /*
          * HOMEPAGE
          */
         public IActionResult Index()
         {
+            ViewBag.categories = _categoryService.GetAll();
             return View();
+        }
+
+        public IEnumerable<UserReport> GetCategoryUsersInfo(int categoryId)
+        {
+            return _reportsService.GetCategoryUsersInfo(categoryId);
         }
 
         /*

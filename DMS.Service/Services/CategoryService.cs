@@ -23,23 +23,20 @@ namespace DMS.Service
         /*
          * GET LIST OF CATEGORY
          */
-        public List<Category> GetAll(string email)
+        public List<Category> GetAll()
         {
-            var user = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
-            var cats = _context.Categories.Where(x=>x.Users.UserId== user.UserId).ToList();
-            return cats;
+            return _context.Categories.ToList();
         }
 
         /*
          * CREATE CATEGORY
          */
-        public bool CreateCategory(Category Cat, string email)
+        public bool CreateCategory(Category Cat)
         {
             bool status;
-            var user = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
+
             Category item = new Category();
             item.CategoryName = Cat.CategoryName;
-            item.UsersUserId = user.UserId;
            
             try
             {

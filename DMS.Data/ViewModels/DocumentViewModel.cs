@@ -13,5 +13,6 @@ namespace DMS.Data
         public string DocumentName { get; set; }
         public Nullable<int> CategoryId { get; set; }
         public string CategoryName { get; set; }
+        public string Username { get; set; }
     }
 }

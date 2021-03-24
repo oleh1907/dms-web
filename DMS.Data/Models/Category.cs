@@ -13,8 +13,6 @@ namespace DMS.Data
         public int CategoryId { get; set; }
         [Required]
         public string CategoryName { get; set; }
-        public int UsersUserId { get; set; }
         public virtual ICollection<Document> Documents { get; set; }
-        public virtual User Users { get; set; }
     }
 }

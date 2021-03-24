@@ -13,7 +13,6 @@ namespace DMS.Data
     {
         public User()
         {
-            this.Categories = new HashSet<Category>();
             this.Documents = new HashSet<Document>();
         }
         public static ClaimsIdentity Identity { get; set; }
@@ -27,7 +26,7 @@ namespace DMS.Data
         public string password { get; set; }
         [Required]
         public string UserRole { get; set; }
-        public virtual ICollection<Category> Categories { get; set; }
+
         public virtual ICollection<Document> Documents { get; set; }
     }
 }

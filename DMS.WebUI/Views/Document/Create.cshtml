@@ -41,43 +41,43 @@
 
 <div class="row">
     <div class="col-md-12">
-        <form asp-action="Create" method="post"
-              enctype="multipart/form-data">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             @if (!string.IsNullOrEmpty(ViewBag.success))
-    {
-        <div class="alert alert-success" role="alert">
-            <strong>Success!</strong> @ViewBag.success.
-        </div>}
+            {
+            <div class="alert alert-success" role="alert">
+                <strong>Success!</strong> @ViewBag.success.
+            </div>
+            }
             @if (!string.IsNullOrEmpty(ViewBag.error))
-    {
-        <div class="alert alert-warning" role="alert">
-            <strong>Failed!</strong> @ViewBag.error.
-        </div>}
+            {
+            <div class="alert alert-warning" role="alert">
+                <strong>Failed!</strong> @ViewBag.error.
+            </div>
+            }
 
             <div class="row">
                 <div class="col-md-6">
-                    Choose a Document:<input type="file" name="file" required/>
+                    Choose a report file in <b>.CSV</b> format that consists of <br />
+                    <b>Date - HoursWorked - CustomersNumber - OrdersNumber</b> <br />
+                    columns filled with appropriate data :<input type="file" name="file" accept=".csv" required/>
                 </div>
-            </div><br>
+            </div>
+            <br>
             <div class="row">
                 <div class="col-md-6">
                     <span asp-validation-for="CategoryId" class="text-danger"></span>
-                   Select Category: <select name="CategoryId">
-
-
-                        @foreach (var i in ViewBag.categories)
-                {
-
-                    <option value="@i.CategoryId">@i.CategoryName</option>
-        }
-
+                    Select Category: 
+                    <select name="CategoryId">                    
+                    @foreach (var i in ViewBag.categories)
+                    {
+                        <option value="@i.CategoryId">@i.CategoryName</option>
+                    }
                     </select>
                 </div>
             </div>
             <br>
             <div class="row col-md-6">
                 <button type="submit" class="btn btn-info">Upload</button>
-
             </div>
         </form>
     </div>

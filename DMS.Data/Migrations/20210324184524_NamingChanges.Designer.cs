@@ -3,14 +3,16 @@ using DMS.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DataLayer.Migrations
 {
     [DbContext(typeof(DMSContext))]
-    partial class DMSContextModelSnapshot : ModelSnapshot
+    [Migration("20210324184524_NamingChanges")]
+    partial class NamingChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,7 +29,11 @@ namespace DataLayer.Migrations
                     b.Property<string>("CategoryName")
                         .IsRequired();
 
+                    b.Property<int>("UsersUserId");
+
                     b.HasKey("CategoryId");
+
+                    b.HasIndex("UsersUserId");
 
                     b.ToTable("Categories");
                 });
@@ -81,6 +87,14 @@ namespace DataLayer.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("DMS.Data.Category", b =>
+                {
+                    b.HasOne("DMS.Data.User", "Users")
+                        .WithMany("Categories")
+                        .HasForeignKey("UsersUserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("DMS.Data.Document", b =>

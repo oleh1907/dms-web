@@ -40,6 +40,7 @@
             <th>
                 Id
             </th>
+
             <th>
                 Name
             </th>
@@ -47,27 +48,34 @@
             <th>
                 Category
             </th>
+
+            <th>
+                Username
+            </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DocumentId)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DocumentName)
-                </td>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DocumentId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DocumentName)
+            </td>
 
-                <td>
-                    @Html.DisplayFor(modelItem => item.CategoryName)
-                </td>
-                <td>
-                    <a href="/Document/DownloadAsync/@item.DocumentId" class="btn btn-info">Download</a>
-                </td>
-            </tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.CategoryName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Username)
+            </td>
+            <td>
+                <a href="/Document/DownloadAsync/@item.DocumentId" class="btn btn-info">Download</a>
+            </td>
+        </tr>
         }
     </tbody>
 </table>

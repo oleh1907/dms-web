@@ -36,19 +36,43 @@ namespace DMS.Service
         public async Task<IQueryable<DocumentViewModel>> GetList(string email,string str)
         {
             var user = _context.Users.Where(x => x.UserEmail == email).FirstOrDefault();
-            var doc = from x in _context.Documents
-                        where x.UsersUserId == user.UserId
-                        select x;
-            var items = from x in _context.Documents
-                        where x.UsersUserId == user.UserId                        
-            select new DocumentViewModel
+
+            IQueryable<Document> doc;
+            IQueryable<DocumentViewModel> items;
+
+            if (user.UserRole == "Admin")
             {
-                DocumentId = x.DocumentId,
-                DocumentPath = x.DocumentPath,
-                DocumentName = x.DocumentName,
-                CategoryId = x.CategoryId,
-                CategoryName = x.Category.CategoryName
-            };
+                doc = from x in _context.Documents
+                          select x;
+                items = from x in _context.Documents
+                            select new DocumentViewModel
+                            {
+                                DocumentId = x.DocumentId,
+                                DocumentPath = x.DocumentPath,
+                                DocumentName = x.DocumentName,
+                                CategoryId = x.CategoryId,
+                                CategoryName = x.Category.CategoryName,
+                                Username = x.User.UserName
+                            };
+            }
+            else
+            {
+                doc = from x in _context.Documents
+                          where x.UserId == user.UserId
+                          select x;
+                items = from x in _context.Documents
+                            where x.UserId == user.UserId
+                            select new DocumentViewModel
+                            {
+                                DocumentId = x.DocumentId,
+                                DocumentPath = x.DocumentPath,
+                                DocumentName = x.DocumentName,
+                                CategoryId = x.CategoryId,
+                                CategoryName = x.Category.CategoryName,
+                                Username = x.User.UserName
+                            };
+            }  
+
             if (!string.IsNullOrEmpty(str))
             {
                 var searcheditems = from x in doc.Where(x => x.DocumentTags.Contains(str) || x.DocumentName.Contains(str) || x.Category.CategoryName.Contains(str) )
@@ -58,7 +82,8 @@ namespace DMS.Service
                             DocumentPath = x.DocumentPath,
                             DocumentName = x.DocumentName,
                             CategoryId = x.CategoryId,
-                            CategoryName = x.Category.CategoryName
+                            CategoryName = x.Category.CategoryName,
+                            Username = x.User.UserName
                         };
                 return searcheditems.AsQueryable();
             }
@@ -84,7 +109,7 @@ namespace DMS.Service
             {
                 response = new Dictionary<string, string>
                 {
-                    {"error", "Invalid document extention. [allowed types: pdf/doc/docx/csv/png/jpg/jpeg/txt]"}
+                    {"error", "Invalid document extention. [allowed types: csv]"}
                 };
             } else if (validateFileSizeResponse["status"] == false)
             {
@@ -101,10 +126,10 @@ namespace DMS.Service
                         Document item = new Document();
                         item.DocumentPath = filePath;
                         item.DocumentName = "uid-" + user.UserId + file.FileName;
-                        item.DocumentTags = file.FileName;//default tags given same as filename will be replaced later
+                        item.DocumentTags = file.FileName; //default tags given same as filename will be replaced later
                         item.CategoryId = document.CategoryId;
-                        item.UsersUserId = user.UserId;
-                        _context.Add(item);
+                        item.UserId = user.UserId;
+                        _context.Documents.Add(item);
                         _context.SaveChanges();
                         file.CopyTo(stream);
                     }
@@ -131,7 +156,7 @@ namespace DMS.Service
          */
         public string GetPath(int userId, int documentId)
         {
-            var item = _context.Documents.Where(x => x.DocumentId == documentId && x.Users.UserId == userId).FirstOrDefault();
+            var item = _context.Documents.Where(x => x.DocumentId == documentId && x.User.UserId == userId).FirstOrDefault();
             return item.DocumentPath;
         }
 
@@ -140,7 +165,7 @@ namespace DMS.Service
          */
         public string GetName(int userId, int documentId)
         {
-            var item = _context.Documents.Where(x => x.DocumentId == documentId && x.Users.UserId == userId).FirstOrDefault();
+            var item = _context.Documents.Where(x => x.DocumentId == documentId && x.User.UserId == userId).FirstOrDefault();
             return item.DocumentName;
         }
 
@@ -154,7 +179,7 @@ namespace DMS.Service
             {
                 {"status", false}
             };
-            string[] allowedTypes = { ".doc", ".docx", ".pdf", ".txt", ".png", ".jpg", ".jpeg", ".gif", ".csv" };
+            string[] allowedTypes = { ".csv" };
             var isAllowedExtention = Array.Exists(allowedTypes, element => element == Path.GetExtension(file.FileName).ToLower());
             if(isAllowedExtention)
             {
@@ -175,7 +200,7 @@ namespace DMS.Service
             {
                 {"status", true}
             };
-            if (file == null || file.Length == 0 || file.Length > 4000000)
+            if (file == null || file.Length == 0 || file.Length > 20000000)
             {
                 response = new Dictionary<string, bool>
                 {
@@ -192,7 +217,7 @@ namespace DMS.Service
         public bool DocumentPermissionRule(int userId, int documentId)
         {
             var response = false;
-            var itemCount = _context.Documents.Where(x => x.DocumentId == documentId && x.Users.UserId == userId).Count();
+            var itemCount = _context.Documents.Where(x => x.DocumentId == documentId && x.User.UserId == userId).Count();
             if (itemCount == 1)
             {
                 response = true;

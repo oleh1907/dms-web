@@ -47,8 +47,7 @@ namespace DMS.Controllers
          */ 
         public IActionResult Create()
         {
-            var email = HttpContext.Session.GetString("UserEmail");
-            ViewBag.categories = _categoryService.GetAll(email);
+            ViewBag.categories = _categoryService.GetAll();
             return View();
         }
 
@@ -59,7 +58,7 @@ namespace DMS.Controllers
         public IActionResult Create(IFormFile file, Document document)
         {
             var email = HttpContext.Session.GetString("UserEmail");
-            ViewBag.categories = _categoryService.GetAll(email);
+            ViewBag.categories = _categoryService.GetAll();
             string pathRoot = _appEnvironment.WebRootPath;
             var documentUploadRespose = _documentService.Upload(file, pathRoot, document, email);
             if (documentUploadRespose.ContainsKey("error"))
@@ -86,7 +85,7 @@ namespace DMS.Controllers
                 return await this.ReturnDocumentFileAsync(filePath, fileName);
             } else
             {
-                TempData["Error"] = "Docuement permission failed";
+                TempData["Error"] = "Document permission failed";
             }
             return RedirectToAction("Index");
         }
