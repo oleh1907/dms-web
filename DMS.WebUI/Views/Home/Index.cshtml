@@ -8,13 +8,29 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark">Dashboard</h1>
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <h1 class="m-0 text-dark">
+                        Dashboard
+                    </h1>
+                }
+                else
+                {
+                    <h1 class="m-0 text-dark">
+                        Welcome!
+                    </h1>
+                }
+
             </div>
 
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Dashboard </li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="breadcrumb-item active">Dashboard </li>
+                    }
                 </ol>
             </div>
         </div>
@@ -25,45 +41,83 @@
 <section class="content">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-4">
-                Select Category:
-                <select id="categoryId" name="CategoryId">
-                    @foreach (var i in ViewBag.categories)
-                    {
-                        <option value="@i.CategoryId">@i.CategoryName</option>
-                    }
-                </select>
-            </div>
-            <div class="col-8">
-                <button id="visualize" type="button" class="btn btn-info">Visualize</button>
-            </div>
+            @if (User.IsInRole("Admin"))
+            {
 
-            <div class="col-12">
-                <canvas id="chart1" width="400" height="400"></canvas>
-            </div>
+                <div class="col-4">
+                    Select Category:
+                    <select id="categoryId" name="CategoryId">
+                        @foreach (var i in ViewBag.categories)
+                        {
+                            <option value="@i.CategoryId">@i.CategoryName</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-8">
+                    <button id="visualize" type="button" class="btn btn-info">Visualize</button>
+                </div>
 
-            <div class="col-12">
-                <canvas id="chart2" width="400" height="400"></canvas>
-            </div>
 
-            <div class="col-12">
-                <canvas id="chart3" width="400" height="400"></canvas>
-            </div>
+                <div class="col-12 mt-4">
+                    <h4>Hours Worked</h4>
+                </div>
+                <div class="col-6">
+                    <canvas id="chartHoursBars"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas id="chartHoursDoughnut"></canvas>
+                </div>
 
-            <div class="col-12">
-                <canvas id="chart4" width="400" height="400"></canvas>
-            </div>
+                <div class="col-12 col-12 mt-4">
+                    <h4>Customers Served</h4>
+                </div>
+                <div class="col-6">
+                    <canvas id="chartCustomersBars"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas id="chartCustomersDoughnut"></canvas>
+                </div>
+
+                <div class="col-12 col-12 mt-4">
+                    <h4>Orders Received</h4>
+                </div>
+                <div class="col-6">
+                    <canvas id="chartOrdersBars"></canvas>
+                </div>
+                <div class="col-6">
+                    <canvas id="chartOrdersDoughnut"></canvas>
+                </div>
+
+                <div class="col-12 col-12 mt-4">
+                    <h4>Hours & Customers & Orders per User</h4>
+                </div>
+                <div class="col-12">
+                    <canvas id="chartHoursCustomersOrdersLines"></canvas>
+                </div>
+                <div class="col-12 mt-4">
+                    <canvas id="chartHoursCustomersOrdersRadar"></canvas>
+                </div>
+            }
+            else
+            {
+                <h4>Please select the section you are interested in through the sidebar</h4>
+            }
         </div>
     </div>
 </section>
 
 @section scripts {
     <script>
+        $(document).ready(() => {
+            $("#visualize").click();
+        });
+
         $("#visualize").on("click", () => {
             $.ajax({
                 url: "@Url.Action("GetCategoryUsersInfo", "Home")?categoryId=" + $("#categoryId").val(),
                 success: (result, status, xhr) => {
                     console.log(result);
+                    DrawCharts(result);            
                 },
                 error: (xhr, status, error) => {
                     alert("Error: " + status + " " + error + " " + xhr.status + " " + xhr.statusText);
@@ -71,5 +125,308 @@
             });
         });
 
+        function DrawCharts(usersData) {
+            let chartHoursBars = new Chart($("#chartHoursBars"), {
+                type: 'bar',
+                data: {
+                    labels: usersData.map(u => u.username),
+                    datasets: [{
+                        label: 'Hours Worked',
+                        data: usersData.map(u => u.hoursTotal),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+
+            let chartHoursDoughnut = new Chart($("#chartHoursDoughnut"), {
+                type: 'doughnut',
+                data: {
+                    labels: usersData.map(u => u.username),
+                    datasets: [{
+                        label: 'Hours Worked',
+                        data: usersData.map(u => u.hoursTotal),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                }
+            });
+
+            let chartCustomersBars = new Chart($("#chartCustomersBars"), {
+                type: 'bar',
+                data: {
+                    labels: usersData.map(u => u.username),
+                    datasets: [{
+                        label: 'Customers Served',
+                        data: usersData.map(u => u.customersTotal),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+
+            let chartCustomersDoughnut = new Chart($("#chartCustomersDoughnut"), {
+                type: 'doughnut',
+                data: {
+                    labels: usersData.map(u => u.username),
+                    datasets: [{
+                        label: 'Customers Served',
+                        data: usersData.map(u => u.customersTotal),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                }
+            });
+
+            let chartOrdersBars = new Chart($("#chartOrdersBars"), {
+                type: 'bar',
+                data: {
+                    labels: usersData.map(u => u.username),
+                    datasets: [{
+                        label: 'Orders Recieved',
+                        data: usersData.map(u => u.ordersTotal),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+
+            let chartOrdersDoughnut = new Chart($("#chartOrdersDoughnut"), {
+                type: 'doughnut',
+                data: {
+                    labels: usersData.map(u => u.username),
+                    datasets: [{
+                        label: 'Orders Recieved',
+                        data: usersData.map(u => u.ordersTotal),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)',
+                            'rgba(255, 159, 64, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                }
+            });
+
+
+            let chartHoursCustomersOrdersLines = new Chart($("#chartHoursCustomersOrdersLines"), {
+                type: 'line',
+                data: {
+                    labels: usersData.map(u => u.username),
+                    datasets: [
+                        {
+                            label: 'Hours Worked',
+                            data: usersData.map(u => u.hoursTotal),
+                            backgroundColor: [
+                                'rgba(255, 206, 86, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(255, 206, 86, 1)',
+                            ],
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Customers Served',
+                            data: usersData.map(u => u.customersTotal),
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                            ],
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Orders Recieved',
+                            data: usersData.map(u => u.ordersTotal),
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                            ],
+                            borderWidth: 1
+                        }
+                    ]
+                }
+            });
+
+            let = chartHoursCustomersOrdersRadar = new Chart($("#chartHoursCustomersOrdersRadar"), {
+                type: 'radar',
+                data: {
+                    labels: ['Hours Worked', 'Customers Served', 'Orders Recieved'],
+                    datasets: [
+                        {
+                            label: usersData[0].username,
+                            data: [usersData[0].hoursTotal, usersData[0].customersTotal, usersData[0].ordersTotal],
+                            backgroundColor: [
+                                'rgba(255, 206, 86, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(255, 206, 86, 1)',
+                            ],
+                            borderWidth: 1
+                        },
+                        {
+                            label: usersData[1].username,
+                            data: [usersData[1].hoursTotal, usersData[1].customersTotal, usersData[1].ordersTotal],
+                            backgroundColor: [
+                                'rgba(54, 162, 235, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(54, 162, 235, 1)',
+                            ],
+                            borderWidth: 1
+                        },
+                        {
+                            label: usersData[2].username,
+                            data: [usersData[2].hoursTotal, usersData[2].customersTotal, usersData[2].ordersTotal],
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(75, 192, 192, 1)',
+                            ],
+                            borderWidth: 1
+                        },
+                        {
+                            label: usersData[3].username,
+                            data: [usersData[3].hoursTotal, usersData[3].customersTotal, usersData[3].ordersTotal],
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                            ],
+                            borderWidth: 1
+                        },
+                        {
+                            label: usersData[4].username,
+                            data: [usersData[4].hoursTotal, usersData[4].customersTotal, usersData[4].ordersTotal],
+                            backgroundColor: [
+                                'rgba(153, 102, 255, 0.2)',
+                            ],
+                            borderColor: [
+                                'rgba(153, 102, 255, 1)',
+                            ],
+                            borderWidth: 1
+                        },
+                    ]
+                }
+            });
+        }
     </script>
 }
